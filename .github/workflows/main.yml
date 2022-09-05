@@ -25,4 +25,4 @@ jobs:
       - name: Espressif IoT Development Framework (ESP-IDF)
         # You may pin to the exact commit or the version.
         # uses: espressif/esp-idf-ci-action@146a0d2f40db5229a19360478a38812203c00161
-        uses: espressif/esp-idf-ci-action@v4.4
+        uses: espressif/esp-idf-ci-action@v4.3
