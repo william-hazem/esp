@@ -15,19 +15,18 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
+
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Espressif IoT Development Framework (ESP-IDF)
-        # You may pin to the exact commit or the version.
-        # uses: espressif/esp-idf-ci-action@146a0d2f40db5229a19360478a38812203c00161
-        uses: espressif/esp-idf-ci-action@v4.3
-        with:
-          path: '/github/workspace/esp'
-      
-      - name: Build
-        run: idf.py build
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: esp-idf build
+      uses: espressif/esp-idf-ci-action@v1
+      with:
+        esp_idf_version: v4.4
+        target: esp32s2
+        path: './'
