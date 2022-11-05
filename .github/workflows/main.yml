@@ -1,32 +1,45 @@
-# This is a basic workflow to help you get started with Actions
+# YAML schema for GitHub Actions:
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions
+#
+# Helpful YAML parser to clarify YAML syntax:
+# https://yaml-online-parser.appspot.com/
+#
+#
+# This file contains the workflows that are run periodically to build the examples.
 
-name: CI
+name: build_esp32
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  schedule:
+    # 1:30am UTC is 7am IST depending on daylight savings.
+    - cron: '30 13 * * *'
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  # Allow manually triggering of the workflow.
+  workflow_dispatch: {}
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-
+  build_daily:
     runs-on: ubuntu-latest
+    name: Build Examples
 
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && github.repository == 'espressif/tflite-micro-esp-examples')
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-    - name: esp-idf build
-      uses: espressif/esp-idf-ci-action@v1
-      with:
-        esp_idf_version: v4.4
-        target: esp32s2
-        path: ''
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Clone IDF
+        run: |
+          git clone --recursive --single-branch -b release/v4.3 https://github.com/espressif/esp-idf.git
+          cd esp-idf
+          ./install.sh
+          cd -
+      - name: Build esp32
+        run: |
+          cd esp-idf
+          . export.sh
+          cd -
+          export IDF_PATH=`pwd`/esp-idf
+          echo "IDF_PATH is set to $IDF_PATH"
+          ./scripts/build_examples.sh esp32
